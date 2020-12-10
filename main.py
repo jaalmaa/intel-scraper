@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 import time
-import datetime
+from datetime import datetime
+import logging
 import pastebin_scraper
 import signatures
 
@@ -19,25 +20,27 @@ import signatures
 # Might hit IP rate-limits eventually, but could deploy this in the cloud and run it
 # through TOR which should refresh the IP in each scraping interval anyway.
 
-while true:
-	try:
-		with open('pastebin_scraper.log', 'rw') as log:
-			# check for most recent paste search
-			pass
-	except FileNotFoundError:
-		# create file and write current datetime
-		pass
-		
-	posts = pastebin_scraper.get_new_posts()
-	for post in posts:
-		threat = signatures.match(post)
-		if threat:
-			with open('<MD5sum>.<Filetype>', 'rw') as sample_file:
+LOG_FILENAME = 'scraper.log'
+logging.basicConfig(filename=LOG_FILENAME,
+	level=logging.DEBUG,
+	format='%(asctime)s %(message)s', 
+	datefmt='%d/%m/%Y %H:%M:%S')
+
+while True:
+	timestamp = datetime.now()
+	logging.info('pastebin search stated')	
+	
+	posts = pastebin_scraper.get_new_posts(timestamp)
+	if posts:
+		for post in posts:
+			threat = signatures.match(post)
+			if threat:
+				sample_file = open('<MD5sum>.<Filetype>', 'w+')
 				# write the contents of the file to the opened file
 				sample_file.write(post.contents)
 				sample_file.close()
-		else:
-			pass
+			else:
+				pass
 
 	# sleep for 30 minutes
 	time.sleep(1800)

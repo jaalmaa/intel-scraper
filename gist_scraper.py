@@ -33,18 +33,27 @@ def get_public_gists():
 	return content
 
 def get_gist_content(gist):
-	# get the contents of a gist from its url
-	pass
+	content = requests.get(gist['url'])
+	return content.text
 
+#@TODO
 def get_gist_commits():
 	pass
 
+#@TODO
 def get_gist_forks():
+	pass
+
+def filter_application_types(gists):
+	# filter list of gists to ones with approved filetypes
+	return [gist for gist in gists if gist['type'] in application_types]
+
+def filter_malicious_indicators(gist):
+	# remove gists that don't contain malicious indicators (strings)
 	pass
 
 if __name__ == '__main__':
 	gists = get_public_gists()
-	#for gist in gists:
-	#	print({gist['url']:gist['type']})
-	types = [gist['type'] for gist in gists]
-	print(set(types))
+	filtered_gists = filter_application_types(gists)
+	for gist in filtered_gists:
+		print(gist)

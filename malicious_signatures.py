@@ -6,10 +6,10 @@ malicious_indicators = {
 	'pe': 'MZ',
 	'base64_gz': 'H4sI'
 	'elf64': 'f0VMR',
-	'sh_script': '#!/bin/bash',
+	'sh_script': '!/bin/bash',
 	'powershell': 'powershell',
 	'powershell_webclient': 'Net.WebClient',	
 	'powershell_script': 'Invoke-',
 	'vba': 'Auto_Open()',
-	'vbs': 'wcript.shell''
+	'vbs': 'wcript.shell'
 }

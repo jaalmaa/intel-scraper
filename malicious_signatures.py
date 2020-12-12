@@ -3,7 +3,6 @@
 malicious_indicators = {
 	'pe_base64': 'TVqQA',
 	'pe_base64_2': 'TVpQ',
-	'pe': 'MZ',
 	'base64_gz': 'H4sI',
 	'elf64': 'f0VMR',
 	'sh_script': '!/bin/bash',

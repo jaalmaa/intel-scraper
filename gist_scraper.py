@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import requests
 import json
+from malicious_signatures import malicious_indicators
 
 # Github Gists API: https://docs.github.com/en/free-pro-team@latest/rest/reference/gists
 # Useful functionality:
@@ -48,12 +49,17 @@ def filter_application_types(gists):
 	# filter list of gists to ones with approved filetypes
 	return [gist for gist in gists if gist['type'] in application_types]
 
-def filter_malicious_indicators(gist):
-	# remove gists that don't contain malicious indicators (strings)
-	pass
+def contains_malicious_indicators(malicious_indicators, gist_content):
+	# returns signature type depending on whether the gist content
+	# contains any of the malicious indicator
+	for item in malicious_indicators.items():
+		if item[1] in gist_content:
+			return item[0]
 
 if __name__ == '__main__':
 	gists = get_public_gists()
 	filtered_gists = filter_application_types(gists)
 	for gist in filtered_gists:
-		print(gist)
+		content = get_gist_content(gist)
+		if contains_malicious_indicators(malicious_indicators, content):
+			print(content)

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import requests
 import json
+import hashlib
 from malicious_signatures import malicious_indicators
 
 # Github Gists API: https://docs.github.com/en/free-pro-team@latest/rest/reference/gists
@@ -55,6 +56,15 @@ def contains_malicious_indicators(malicious_indicators, gist_content):
 	for item in malicious_indicators.items():
 		if item[1] in gist_content:
 			return item[0]
+
+def write_content_to_file(content, signature):
+	# take in the content of a github gist and write it to disk
+	# filename format: <md5hash>.<indicator type>
+	content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
+	filename = content_hash + '.' + signature
+	sample_file = open(filename, 'w')
+	sample_file.write(content)
+	sample_file.close()
 
 if __name__ == '__main__':
 	gists = get_public_gists()

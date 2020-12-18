@@ -2,6 +2,7 @@
 import requests
 import json
 import hashlib
+import time
 from malicious_signatures import malicious_indicators
 
 # Github Gists API: https://docs.github.com/en/free-pro-team@latest/rest/reference/gists
@@ -66,10 +67,16 @@ def write_content_to_file(content, signature):
 	sample_file.write(content)
 	sample_file.close()
 
+def run():
+	while True:
+		gists = get_public_gists()
+		filtered_gists = filter_application_types(gists)
+		for gist in filtered_gists:
+			content = get_gist_content(gist)
+			signature = contains_malicious_indicators(malicious_indicators, content)
+			if signature:
+				write_content_to_file(content, signature)
+		time.sleep(300)
+
 if __name__ == '__main__':
-	gists = get_public_gists()
-	filtered_gists = filter_application_types(gists)
-	for gist in filtered_gists:
-		content = get_gist_content(gist)
-		if contains_malicious_indicators(malicious_indicators, content):
-			print(content)
+	run()

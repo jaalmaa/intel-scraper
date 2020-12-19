@@ -3,7 +3,9 @@ import requests
 import json
 import hashlib
 import time
+import os
 from malicious_signatures import malicious_indicators
+import config
 
 # Github Gists API: https://docs.github.com/en/free-pro-team@latest/rest/reference/gists
 # Useful functionality:
@@ -16,6 +18,7 @@ application_types = [
 	'x-sh',
 	'x-msdos-program'
 ]
+
 
 def get_public_gists():
 	# return a list of the filenames, filetypes and URLs of the most recent gists
@@ -35,21 +38,26 @@ def get_public_gists():
 				'type': g[1]['type']})
 	return content
 
+
 def get_gist_content(gist):
 	content = requests.get(gist['url'])
 	return content.text
+
 
 #@TODO
 def get_gist_commits():
 	pass
 
+
 #@TODO
 def get_gist_forks():
 	pass
 
+
 def filter_application_types(gists):
 	# filter list of gists to ones with approved filetypes
 	return [gist for gist in gists if gist['type'] in application_types]
+
 
 def contains_malicious_indicators(malicious_indicators, gist_content):
 	# returns signature type depending on whether the gist content
@@ -58,15 +66,27 @@ def contains_malicious_indicators(malicious_indicators, gist_content):
 		if item[1] in gist_content:
 			return item[0]
 
-def write_content_to_file(content, signature):
-	# take in the content of a github gist and write it to disk
-	# filename format: <md5hash>.<indicator type>
-	content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
-	filename = content_hash + '.' + signature
+
+def write_content_to_file(content, filename):
+	# take the content of a github gist and a filename and write it to disk
 	sample_file = open(filename, 'w')
 	sample_file.write(content)
 	sample_file.close()
 
+
+def get_filename(content, signature):
+	content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
+	filename = config.samples_directory + content_hash + '.' + signature
+	return filename
+
+
+def file_exists(filename):
+	# check if a file already exists on disk with the same filename
+	files = os.listdir(directory)
+	return True if filename in files else False
+
+
+# main function to run gist scraper - call as daemon in main program
 def run():
 	while True:
 		gists = get_public_gists()
@@ -75,8 +95,11 @@ def run():
 			content = get_gist_content(gist)
 			signature = contains_malicious_indicators(malicious_indicators, content)
 			if signature:
-				write_content_to_file(content, signature)
+				filename = get_filename(content, signature)
+				if not file_exists(filename):
+					write_content_to_file(content, signature)
 		time.sleep(300)
+
 
 if __name__ == '__main__':
 	run()

@@ -13,3 +13,6 @@ malicious_indicators = {
 	'vbs': 'wcript.shell'
 }
 
+ignore = [
+	'chocolatey'
+]

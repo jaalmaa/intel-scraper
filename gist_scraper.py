@@ -4,7 +4,7 @@ import json
 import hashlib
 import time
 import os
-from malicious_signatures import malicious_indicators
+from malicious_signatures import malicious_indicators, ignore
 import config
 
 # Github Gists API: https://docs.github.com/en/free-pro-team@latest/rest/reference/gists
@@ -62,6 +62,9 @@ def filter_application_types(gists):
 def contains_malicious_indicators(malicious_indicators, gist_content):
 	# returns signature type depending on whether the gist content
 	# contains any of the malicious indicator
+	for item in ignore:
+		if item[1] in gist_content:
+			return False
 	for item in malicious_indicators.items():
 		if item[1] in gist_content:
 			return item[0]
@@ -82,8 +85,8 @@ def get_filename(content, signature):
 
 def file_exists(filename):
 	# check if a file already exists on disk with the same filename
-	files = os.listdir(directory)
-	return True if filename in files else False
+	print(filename)
+	return os.path.exists(filename)
 
 
 # main function to run gist scraper - call as daemon in main program
@@ -97,7 +100,7 @@ def run():
 			if signature:
 				filename = get_filename(content, signature)
 				if not file_exists(filename):
-					write_content_to_file(content, signature)
+					write_content_to_file(content, filename)
 		time.sleep(300)
 
 
